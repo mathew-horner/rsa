@@ -1,23 +1,23 @@
-use crate::error::DecryptError;
-use crate::BoundlessUint;
+use rug::Integer;
 
+use crate::{decode, encode};
+
+#[derive(Debug)]
 pub struct PrivateKey {
-    /// The first large prime that this key is made of.
-    p: BoundlessUint,
-    /// The second large prime that this key is made of.
-    q: BoundlessUint,
-    /// The value of Carmichael's Totient Function over `n`, which is equivalent to `lcm(p - 1, q - 1)`.
-    lcm: BoundlessUint,
-    /// The private key exponent.
-    d: BoundlessUint,
+    p: Integer,
+    q: Integer,
+    d: Integer,
 }
 
 impl PrivateKey {
-    pub fn new(p: BoundlessUint, q: BoundlessUint, lcm: BoundlessUint, d: BoundlessUint) -> Self {
-        Self { p, q, lcm, d }
+    pub fn new(p: Integer, q: Integer, d: Integer) -> Self {
+        Self { p, q, d }
     }
 
-    pub fn decrypt(&self, data: &[u8]) -> Result<Vec<u8>, DecryptError> {
-        todo!();
+    pub fn decrypt(&self, data: &[u8]) -> Vec<u8> {
+        let c = encode(data);
+        let n = self.p.clone() * self.q.clone();
+        let m = c.pow_mod(&self.d, &n).unwrap();
+        decode(m)
     }
 }

@@ -1,19 +1,21 @@
-use crate::error::EncryptError;
-use crate::BoundlessUint;
+use rug::Integer;
 
+use crate::{decode, encode};
+
+#[derive(Debug)]
 pub struct PublicKey {
-    /// The modulus (p * q from the private key).
-    n: BoundlessUint,
-    /// The public key exponent.
-    e: BoundlessUint,
+    n: Integer,
+    e: Integer,
 }
 
 impl PublicKey {
-    pub fn new(n: BoundlessUint, e: BoundlessUint) -> Self {
+    pub fn new(n: Integer, e: Integer) -> Self {
         Self { n, e }
     }
 
-    pub fn encrypt(&self, data: &[u8]) -> Result<Vec<u8>, EncryptError> {
-        todo!();
+    pub fn encrypt(&self, data: &[u8]) -> Vec<u8> {
+        let m = encode(data);
+        let c = m.pow_mod(&self.e, &self.n).unwrap();
+        decode(c)
     }
 }
